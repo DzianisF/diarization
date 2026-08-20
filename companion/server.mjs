@@ -5,7 +5,7 @@ import { createReadStream } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
-import { COMPANION_PORT, MAX_AUDIO_BYTES, MAX_DURATION_SECONDS, buildAudioArgs, isAllowedWebOrigin, publicJob, validateCompanionRequest } from "./lib.mjs";
+import { COMPANION_PORT, MAX_AUDIO_BYTES, MAX_DURATION_SECONDS, buildAudioArgs, buildYouTubeDownloadArgs, friendlyYouTube403, isAllowedWebOrigin, publicJob, validateCompanionRequest } from "./lib.mjs";
 
 const jobs = new Map();
 const handshakes = new Map();
@@ -52,7 +52,7 @@ async function readBody(req) {
   for await (const chunk of req) { body += chunk; if (body.length > 20_000) throw new Error("Request payload is too large."); }
   return JSON.parse(body || "{}");
 }
-function fail(job, error) { job.stage = "failed"; job.progress = 100; job.error = error instanceof Error ? error.message : "The companion could not prepare this media."; }
+function fail(job, error) { job.stage = "failed"; job.progress = 100; job.error = friendlyYouTube403(error); }
 async function processJob(job) {
   try {
     job.stage = "inspecting"; job.progress = 8;
@@ -62,7 +62,13 @@ async function processJob(job) {
     if (!Number.isFinite(duration) || duration <= 0 || duration > MAX_DURATION_SECONDS) throw new Error("The companion accepts videos from 1 second to 60 minutes.");
     job.stage = "downloading"; job.progress = 20;
     job.dir = await mkdtemp(join(tmpdir(), "diarize-companion-"));
-    await run("yt-dlp", ["--no-config", "--no-playlist", "--format", "worstaudio/worst", "--output", join(job.dir, "source.%(ext)s"), job.sourceUrl], 180_000);
+    try {
+      await run("yt-dlp", buildYouTubeDownloadArgs(job.sourceUrl, join(job.dir, "source.%(ext)s")), 180_000);
+    } catch (error) {
+      if (!/HTTP Error 403|Forbidden/i.test(error instanceof Error ? error.message : String(error))) throw error;
+      job.stage = "downloading"; job.progress = 35;
+      await run("yt-dlp", buildYouTubeDownloadArgs(job.sourceUrl, join(job.dir, "source.%(ext)s"), true), 180_000);
+    }
     const sourceName = (await readdir(job.dir)).find(name => name.startsWith("source."));
     if (!sourceName) throw new Error("The companion could not create a local source file.");
     job.stage = "extracting_audio"; job.progress = 68;

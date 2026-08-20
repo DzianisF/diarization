@@ -40,6 +40,20 @@ export function buildAudioArgs(inputPath, outputPath) {
   return ["-y", "-i", inputPath, "-vn", "-ac", "1", "-ar", "16000", "-b:a", "32k", "-f", "mp3", outputPath];
 }
 
+export function buildYouTubeDownloadArgs(sourceUrl, outputTemplate, useAndroidClient = false) {
+  const args = ["--no-config", "--no-playlist", "--format", "worstaudio/worst", "--output", outputTemplate];
+  if (useAndroidClient) args.push("--extractor-args", "youtube:player_client=android");
+  return [...args, sourceUrl];
+}
+
+export function friendlyYouTube403(error) {
+  const message = error instanceof Error ? error.message : String(error);
+  if (/HTTP Error 403|Forbidden/i.test(message)) {
+    return "YouTube rejected the requested media stream. Update yt-dlp (`brew update && brew upgrade yt-dlp`) and retry. If the current release still returns 403, YouTube may require a browser session or may temporarily reject this source.";
+  }
+  return message;
+}
+
 export function publicJob(job) {
   return { id: job.id, stage: job.stage, progress: job.progress, error: job.error ?? null, filename: job.filename ?? null };
 }

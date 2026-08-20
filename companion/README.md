@@ -34,4 +34,14 @@ npm run prepare -- --rights-confirmed --output-dir ~/Downloads "https://www.yout
 
 The companion downloads and extracts a compact MP3 locally, verifies the 60-minute and 16 MB limits, saves it in the chosen output directory, and deletes its temporary working files. In Diarize, choose **Local file** and select that saved MP3. This fallback works in Comet because the browser only uses its normal file picker; it does not need to make a localhost network request.
 
+### YouTube HTTP 403
+
+The manual command first uses the ordinary public audio route and, only after a YouTube HTTP 403, retries once with yt-dlp's alternate Android player client. If YouTube still rejects the media, update the macOS yt-dlp installation and retry:
+
+```bash
+brew update && brew upgrade yt-dlp
+```
+
+YouTube can still reject a request based on its current source-side policies or a required browser session. The companion reports that outcome explicitly; it does not claim to bypass such restrictions.
+
 On macOS, run `brew install node yt-dlp ffmpeg`; on Ubuntu/Debian, install Node.js 20+, `yt-dlp`, and `ffmpeg` with your preferred trusted package source; on Windows, install Node.js LTS and then `yt-dlp` plus FFmpeg using `winget` or another trusted package manager. Confirm each command is available with `node --version`, `yt-dlp --version`, and `ffmpeg -version` before running `npm start`.

@@ -3,7 +3,7 @@ import { mkdir, mkdtemp, readdir, rename, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { randomUUID } from "node:crypto";
-import { MAX_AUDIO_BYTES, MAX_DURATION_SECONDS, buildAudioArgs, parseManualPreparationArgs } from "./lib.mjs";
+import { MAX_AUDIO_BYTES, MAX_DURATION_SECONDS, buildAudioArgs, buildYouTubeDownloadArgs, friendlyYouTube403, parseManualPreparationArgs } from "./lib.mjs";
 
 function run(command, args, timeoutMs) {
   return new Promise((resolveRun, reject) => {
@@ -33,7 +33,15 @@ try {
   if (!Number.isFinite(duration) || duration <= 0 || duration > MAX_DURATION_SECONDS) throw new Error("The companion accepts videos from 1 second to 60 minutes.");
   tempDir = await mkdtemp(join(tmpdir(), "diarize-companion-cli-"));
   console.log("Downloading audio locally…");
-  await run("yt-dlp", ["--no-config", "--no-playlist", "--format", "worstaudio/worst", "--output", join(tempDir, "source.%(ext)s"), sourceUrl], 180_000);
+  try {
+    await run("yt-dlp", buildYouTubeDownloadArgs(sourceUrl, join(tempDir, "source.%(ext)s")), 180_000);
+  } catch (error) {
+    if (!/HTTP Error 403|Forbidden/i.test(error instanceof Error ? error.message : String(error))) throw error;
+    console.log("YouTube returned 403. Retrying with the alternate supported Android player client…");
+    try {
+      await run("yt-dlp", buildYouTubeDownloadArgs(sourceUrl, join(tempDir, "source.%(ext)s"), true), 180_000);
+    } catch (retryError) { throw new Error(friendlyYouTube403(retryError)); }
+  }
   const sourceName = (await readdir(tempDir)).find(name => name.startsWith("source."));
   if (!sourceName) throw new Error("The companion could not create a local source file.");
   const preparedPath = join(tempDir, "speech.mp3");
@@ -46,7 +54,7 @@ try {
   console.log(`Prepared audio: ${finalPath}`);
   console.log("Open Diarize, choose Local file, and select this MP3.");
 } catch (error) {
-  console.error(error instanceof Error ? error.message : "The companion could not prepare this media.");
+  console.error(friendlyYouTube403(error));
   usage();
   process.exitCode = 1;
 } finally {
