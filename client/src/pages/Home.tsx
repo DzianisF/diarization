@@ -15,6 +15,7 @@ import { getSessionId } from "../lib/session";
 import { LOCAL_FILE_SELECTED_EVENT } from "../components/diarize/PlatformDownloadDock";
 import { PlatformDownloadDock } from "../components/diarize/PlatformDownloadDock";
 import { LocalMediaPreparationDock } from "../components/diarize/LocalMediaPreparationDock";
+import { LocalCompanionDock } from "../components/diarize/LocalCompanionDock";
 import { TranscriptControls } from "../components/diarize/TranscriptControls";
 import { useLocale } from "../contexts/LocaleContext";
 
@@ -143,6 +144,7 @@ export default function Home() {
           <div className="flex items-center gap-2"><p className="hidden items-center gap-2 text-xs text-[#786747] sm:flex"><Sparkles className="size-3.5" /> Private session workspace</p><Button type="button" variant="outline" size="sm" onClick={toggleLocale} aria-label={locale === "ru" ? "Switch interface to English" : "Переключить интерфейс на русский"} className="h-8 border-[#b49345]/35 bg-[#fffaf0]/80 px-2 text-xs text-[#675633]">{locale === "ru" ? "EN" : "RU"}</Button></div>
         </header>
         <p className="mb-4 rounded-xl border border-[#b49345]/25 bg-[#f8efd9]/75 px-4 py-2.5 text-xs leading-5 text-[#735f35]">YouTube links are supported on a best-effort basis: Diarize attempts to fetch the lightest available public audio stream. If the platform blocks access or a file exceeds the limit, upload the permitted audio/video file instead.</p>
+        <div className="mb-4 flex justify-center sm:justify-end"><LocalCompanionDock embedded /></div>
         <div className="mb-4 flex flex-wrap justify-center gap-2 sm:hidden"><LocalMediaPreparationDock embedded /><PlatformDownloadDock embedded /></div>
 
         <div className="grid gap-5 xl:grid-cols-[244px_minmax(0,1fr)_280px]">

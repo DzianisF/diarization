@@ -42,6 +42,13 @@ const translations: Record<string, string> = {
   "The browser prevented local video playback needed for preparation. Start again from this panel.": "Браузер заблокировал локальное воспроизведение видео, нужное для подготовки. Запустите процесс снова из этой панели.",
   "Unable to create the job.": "Не удалось создать задание.", "Unable to create this job.": "Не удалось создать это задание.", "Upload failed.": "Загрузка не удалась.", "Transcript copied.": "Расшифровка скопирована.",
   "Copy transcript": "Копировать расшифровку", "Download transcript as text": "Скачать расшифровку как текст", "Download transcript as SRT subtitles": "Скачать расшифровку как субтитры SRT", "Download transcript as WebVTT subtitles": "Скачать расшифровку как субтитры WebVTT",
+  "Use local companion": "Использовать локальный companion", "On this device": "На этом устройстве", "Close local companion panel": "Закрыть панель локального companion", "Public YouTube URL": "Публичная ссылка YouTube",
+  "The companion uses your device’s network, downloads permitted public media locally, extracts compact audio, then selects it in Diarize. Keep the companion terminal running.": "Companion использует сеть вашего устройства, локально получает разрешённое публичное медиа, извлекает компактное аудио и выбирает его в Diarize. Не закрывайте окно companion.",
+  "I confirm I have the right to process this media locally.": "Я подтверждаю право на локальную обработку этого медиа.", "Preparing audio locally": "Локальная подготовка аудио", "Prepare with companion": "Подготовить через companion",
+  "Local audio is ready and has been selected in Diarize.": "Локальное аудио готово и выбрано в Diarize.", "The local companion is not ready.": "Локальный companion не готов.", "The local companion rejected this request.": "Локальный companion отклонил этот запрос.",
+  "Unable to connect to the local companion. Start it and try again.": "Не удаётся подключиться к локальному companion. Запустите его и повторите попытку.", "Unable to reach the local companion.": "Не удаётся связаться с локальным companion.", "The local companion did not return a job status.": "Локальный companion не вернул статус задания.",
+  "The companion audio is unavailable.": "Аудио из companion недоступно.", "Unable to receive prepared companion audio.": "Не удалось получить подготовленное companion аудио.",
+  "queued": "в очереди", "inspecting": "проверка", "downloading": "скачивание", "extracting audio": "извлечение аудио", "ready": "готово", "handed off": "передано в Diarize", "failed": "ошибка",
 };
 
 const reverseTranslations = Object.fromEntries(Object.entries(translations).map(([english, russian]) => [russian, english]));

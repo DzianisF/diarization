@@ -41,3 +41,11 @@ The localization release gate passed 25 Vitest files with 54 tests, `pnpm check`
 With the rights-confirmed browser-download route, `https://www.youtube.com/watch?v=8bMXdkVpHn4` returned HTTP 422 before a response stream was created. The upstream diagnostic was: `YouTube requested browser verification and rejected this free server.` Therefore neither direct server-side audio extraction nor writing a temporary video file can begin for this source in the current hosting environment. The existing Piped fallback is also best-effort and was unavailable during the original production verification.
 
 The stream-to-browser feature is an **egress** path only: it passes bytes to the device after `yt-dlp` has already obtained an accessible stream. It does not make YouTube grant source access and cannot bypass browser verification. A server-local temporary file would have the same prerequisite and would additionally be constrained by the serverless request lifetime and ephemeral disk.
+
+## 2026-08-20 Local companion check
+
+The `companion` package starts a localhost-only HTTP service on `127.0.0.1:38491`. Its health endpoint returned `{ "ok": true, "version": "0.1.0" }` in the smoke check. The service accepts explicit rights confirmation, validates public HTTPS YouTube URLs, uses the device’s own network to retrieve media, creates an audio-only 16 kHz mono 32 kbps MP3 with local `ffmpeg`, rejects outputs over 16 MB, and removes each temporary directory after 30 minutes.
+
+The web-panel test verifies both an authorized local-job request and the ready-audio handoff back into Diarize’s Local file event. The companion’s unit tests verify origin controls, URL/rights validation, and audio-only ffmpeg arguments. This confirms the local protocol and UI handoff, not YouTube’s willingness to serve a particular video on every user network.
+
+The companion now rejects a foreign origin with HTTP 403. A direct test of the published Diarize origin received a valid handshake response; a job request without its fresh nonce was rejected with HTTP 400 before any source retrieval began. The API’s CORS allowlist is exact rather than a wildcard for unrelated Manus sites.

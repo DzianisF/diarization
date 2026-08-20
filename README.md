@@ -30,6 +30,12 @@ This is also best-effort: YouTube browser verification, private/sign-in-only vid
 
 The floating **Prepare long video** action can turn an oversized video into a compact, audio-only speech copy inside a current Chromium or Firefox browser. It uses browser media capture and `MediaRecorder`; the original video remains on the device, and the output targets the same 16 MB upload limit as the server. Preparation is real-time, so the tab should remain open until its visible local-playback progress finishes. If the browser does not expose media capture, or the compact audio result still exceeds 16 MB, the user must trim or prepare the permitted media locally before upload.
 
+### Use the local companion for YouTube
+
+**Use local companion** is the appropriate path when the free Diarize host is rejected by YouTube browser verification. The companion is a small, cross-platform Node.js service that runs only on `127.0.0.1:38491` on the same computer as the browser. After the user confirms permission, it attempts to fetch a public YouTube URL through that computer’s normal network, extracts a 16 kHz mono 32 kbps MP3 with local `ffmpeg`, enforces the 60-minute and 16 MB limits, and returns the compact audio directly to the Local file intake. Temporary source and audio files are deleted after 30 minutes.
+
+Install Node.js 20+, `yt-dlp`, and `ffmpeg`, then open the repository’s `companion` directory and run `npm start`. Keep that terminal open, choose **Use local companion** in Diarize, paste the public URL, confirm your rights, and start preparation. The companion does not import browser cookies or attempt to bypass verification; YouTube can still reject a request, require sign-in, or change its delivery behavior. See [`companion/README.md`](./companion/README.md) for operating-system setup notes.
+
 ### Subtitle export
 
 For a completed conversation, Diarize can export `.srt` and WebVTT `.vtt` cue files. Each cue includes the diarized speaker name and the recorded start/end timing; the standard TXT and copy controls remain available for plain transcript workflows.
