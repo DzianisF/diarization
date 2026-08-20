@@ -93,3 +93,7 @@
 - [x] Опубликовать исправление подключения и синхронизировать его с GitHub-репозиторием DzianisF/diarization.
 - [x] Разрешить прямой localhost health-check companion без Origin, сохранив origin и handshake для рабочих маршрутов.
 - [x] Протестировать, опубликовать и синхронизировать исправление health-check companion.
+- [x] Проверить PNA/CORS-предзапрос браузера к HTTPS-to-localhost companion и точную причину Failed to fetch.
+- [x] Реализовать совместимый маршрут подключения companion из опубликованного Diarize без ослабления защиты рабочих маршрутов.
+- [ ] Протестировать, опубликовать и синхронизировать исправление PNA/CORS подключения companion.
+- [x] Добавить явную проверку Local Network Access и конкретную инструкцию разрешения localhost companion в браузере.

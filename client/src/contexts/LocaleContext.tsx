@@ -51,6 +51,10 @@ const translations: Record<string, string> = {
   "Start it first:": "Сначала запустите:", "in the repository folder, open a terminal and run": "в папке репозитория откройте терминал и выполните", "Keep that terminal open. Open the published Diarize site in a browser on this same computer—not Manus Preview—and allow local-network access if the browser asks.": "Не закрывайте это окно терминала. Откройте опубликованный сайт Diarize в браузере на этом же компьютере, а не Manus Preview, и разрешите доступ к локальной сети, если браузер спросит.",
   "Cannot reach the local companion. Start it in the repository’s companion folder with npm start, keep that terminal open, then allow local-network access if your browser asks.": "Не удаётся подключиться к локальному companion. Запустите его в папке companion репозитория командой npm start, не закрывайте терминал и разрешите браузеру доступ к локальной сети, если он спросит.",
   "The local companion cannot be reached from Manus Preview. Open the published Diarize site in a browser on the same computer where companion is running, then try again.": "Локальный companion недоступен из Manus Preview. Откройте опубликованный сайт Diarize в браузере на том же компьютере, где запущен companion, и повторите попытку.",
+  "Your browser has blocked local-network access for Diarize. Open the site controls next to the address bar, set Local network access to Allow, then reload this page.": "Браузер заблокировал доступ Diarize к локальной сети. Откройте настройки сайта рядом с адресной строкой, установите «Доступ к локальной сети» в «Разрешить», затем обновите страницу.",
+  "If status is OK but this panel fails, open the site controls next to the address bar, set": "Если status возвращает OK, но панель не работает, откройте настройки сайта рядом с адресной строкой, установите",
+  "Local network access": "Доступ к локальной сети",
+  "to Allow, then reload.": "в «Разрешить», затем обновите страницу.",
   "queued": "в очереди", "inspecting": "проверка", "downloading": "скачивание", "extracting audio": "извлечение аудио", "ready": "готово", "handed off": "передано в Diarize", "failed": "ошибка",
 };
 

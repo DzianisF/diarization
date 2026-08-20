@@ -52,6 +52,12 @@ The companion now rejects a foreign origin with HTTP 403. A direct test of the p
 
 The manual `GET /v1/status` endpoint now returns its minimal `ok` response without an Origin header, so it can be opened directly in a browser for setup diagnostics. `POST /v1/jobs` without Origin remains rejected with HTTP 403; origin checks and the single-use handshake therefore continue to protect all work-creating routes.
 
+## 2026-08-20 Local Network Access permission check
+
+The companion already responds correctly to the historical PNA OPTIONS preflight: the approved Diarize origin receives `Access-Control-Allow-Origin`, supported request headers, and `Access-Control-Allow-Private-Network: true`. Current Chromium documentation explains that this earlier PNA experiment has been replaced by a Local Network Access permission prompt for public websites connecting to loopback or local services. The companion panel now checks that permission where the browser exposes it, gives a direct recovery instruction when it is denied, and explains the site-controls setting next to the address bar.
+
+The final gate for this change passed 26 Vitest files with 58 tests, `pnpm check`, `pnpm run build`, companion unit tests, and a Node syntax check.
+
 ## 2026-08-20 Companion startup diagnostic check
 
 The companion panel now displays the exact startup command (`cd companion && npm start`) before a request is submitted and explains that the terminal must remain open. A browser `Failed to fetch` is converted to a clear local-service diagnostic rather than being shown as raw technical text. The test suite validates this error path, and the companion README explains the localhost status check and browser local-network permission.

@@ -51,4 +51,16 @@ describe("LocalCompanionDock", () => {
     await waitFor(() => expect(screen.getByRole("alert").textContent).toMatch(/start it in the repository/i));
     expect(screen.getByRole("note").textContent).toMatch(/npm start/);
   });
+
+  it("explains when browser local-network permission has been denied", async () => {
+    Object.defineProperty(navigator, "permissions", { configurable: true, value: { query: vi.fn().mockResolvedValue({ state: "denied" }) } });
+    const fetchMock = vi.fn(); vi.stubGlobal("fetch", fetchMock);
+    render(<LocalCompanionDock embedded />);
+    fireEvent.click(screen.getByRole("button", { name: /use local companion/i }));
+    fireEvent.change(screen.getByLabelText(/public youtube url/i), { target: { value: "https://www.youtube.com/watch?v=8bMXdkVpHn4" } });
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: /prepare with companion/i }));
+    await waitFor(() => expect(screen.getByRole("alert").textContent).toMatch(/local-network access/i));
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
 });
