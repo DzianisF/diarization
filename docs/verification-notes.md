@@ -50,6 +50,8 @@ The web-panel test verifies both an authorized local-job request and the ready-a
 
 The companion now rejects a foreign origin with HTTP 403. A direct test of the published Diarize origin received a valid handshake response; a job request without its fresh nonce was rejected with HTTP 400 before any source retrieval began. The API’s CORS allowlist is exact rather than a wildcard for unrelated Manus sites.
 
+The manual `GET /v1/status` endpoint now returns its minimal `ok` response without an Origin header, so it can be opened directly in a browser for setup diagnostics. `POST /v1/jobs` without Origin remains rejected with HTTP 403; origin checks and the single-use handshake therefore continue to protect all work-creating routes.
+
 ## 2026-08-20 Companion startup diagnostic check
 
 The companion panel now displays the exact startup command (`cd companion && npm start`) before a request is submitted and explains that the terminal must remain open. A browser `Failed to fetch` is converted to a clear local-service diagnostic rather than being shown as raw technical text. The test suite validates this error path, and the companion README explains the localhost status check and browser local-network permission.

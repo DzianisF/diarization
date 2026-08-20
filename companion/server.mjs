@@ -78,9 +78,10 @@ async function processJob(job) {
 async function cleanup(id) { const job = jobs.get(id); if (!job) return; jobs.delete(id); if (job.dir) await rm(job.dir, { recursive: true, force: true }); }
 
 const server = createServer(async (req, res) => {
+  const url = new URL(req.url || "/", `http://127.0.0.1:${COMPANION_PORT}`);
+  if (url.pathname === "/v1/status" && req.method === "GET" && !req.headers.origin) return json(res, 200, { ok: true, version: "0.1.0" });
   if (!setCors(req, res)) return json(res, 403, { error: "This companion accepts requests only from an approved Diarize web origin." });
   if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
-  const url = new URL(req.url || "/", `http://127.0.0.1:${COMPANION_PORT}`);
   if (url.pathname === "/v1/status" && req.method === "GET") return json(res, 200, { ok: true, version: "0.1.0" });
   if (url.pathname === "/v1/handshake" && req.method === "POST") return json(res, 200, { nonce: issueHandshake(String(req.headers.origin)) });
   if (url.pathname === "/v1/jobs" && req.method === "POST") {
