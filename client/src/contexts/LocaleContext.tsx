@@ -55,6 +55,11 @@ const translations: Record<string, string> = {
   "If status is OK but this panel fails, open the site controls next to the address bar, set": "Если status возвращает OK, но панель не работает, откройте настройки сайта рядом с адресной строкой, установите",
   "Local network access": "Доступ к локальной сети",
   "to Allow, then reload.": "в «Разрешить», затем обновите страницу.",
+  "Comet fallback: save audio locally, then upload it": "Режим для Comet: сохраните аудио локально, затем загрузите его",
+  "Run": "Выполните",
+  "in the": "в папке",
+  "folder. When it finishes, use": ". После завершения выберите",
+  "above to select the saved MP3. This path does not need browser-to-localhost access.": "выше и укажите сохранённый MP3. Этот путь не требует доступа браузера к localhost.",
   "queued": "в очереди", "inspecting": "проверка", "downloading": "скачивание", "extracting audio": "извлечение аудио", "ready": "готово", "handed off": "передано в Diarize", "failed": "ошибка",
 };
 

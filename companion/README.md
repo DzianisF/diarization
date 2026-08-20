@@ -24,4 +24,14 @@ That error means the web page cannot reach the companion on your own computer ye
 
 If the status URL is `ok` but the panel still cannot connect, the browser has likely denied the published Diarize site permission to use the local network. Open the site-controls icon next to the address bar on `https://diarizeweb-iwtgqu2f.manus.space`, set **Local network access** to **Allow**, and reload the page. This permission is requested by current Chromium browsers for a public HTTPS site that connects to loopback services.
 
+## Comet-compatible manual route
+
+If Comet does not expose a Local Network Access control, bypass the browser-to-localhost connection entirely. From the `companion` directory, run the following command after confirming you have the right to process the public media:
+
+```bash
+npm run prepare -- --rights-confirmed --output-dir ~/Downloads "https://www.youtube.com/watch?v=..."
+```
+
+The companion downloads and extracts a compact MP3 locally, verifies the 60-minute and 16 MB limits, saves it in the chosen output directory, and deletes its temporary working files. In Diarize, choose **Local file** and select that saved MP3. This fallback works in Comet because the browser only uses its normal file picker; it does not need to make a localhost network request.
+
 On macOS, run `brew install node yt-dlp ffmpeg`; on Ubuntu/Debian, install Node.js 20+, `yt-dlp`, and `ffmpeg` with your preferred trusted package source; on Windows, install Node.js LTS and then `yt-dlp` plus FFmpeg using `winget` or another trusted package manager. Confirm each command is available with `node --version`, `yt-dlp --version`, and `ffmpeg -version` before running `npm start`.

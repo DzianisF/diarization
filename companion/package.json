@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
+    "prepare": "node prepare.mjs",
     "test": "node --test lib.test.mjs"
   },
   "engines": { "node": ">=20" }

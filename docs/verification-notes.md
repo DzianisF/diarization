@@ -58,6 +58,12 @@ The companion already responds correctly to the historical PNA OPTIONS preflight
 
 The final gate for this change passed 26 Vitest files with 58 tests, `pnpm check`, `pnpm run build`, companion unit tests, and a Node syntax check.
 
+## 2026-08-20 Comet manual-import check
+
+The companion now has a browser-independent `npm run prepare` mode. With explicit `--rights-confirmed`, it obtains permitted public YouTube media on the device, enforces the same 60-minute and 16 MB limits, writes a compact MP3 to the requested directory, and removes temporary files. The user then selects that MP3 with the standard Local file picker; no browser-to-localhost request is required. This supplies a fallback for browsers such as Comet where Local Network Access controls are not exposed in the visible interface.
+
+The Comet fallback UI and the companion CLI parser are covered by automated tests. The release gate passed 26 Vitest files with 59 tests, `pnpm check`, `pnpm run build`, companion unit tests, and Node syntax checks for both companion entry points.
+
 ## 2026-08-20 Companion startup diagnostic check
 
 The companion panel now displays the exact startup command (`cd companion && npm start`) before a request is submitted and explains that the terminal must remain open. A browser `Failed to fetch` is converted to a clear local-service diagnostic rather than being shown as raw technical text. The test suite validates this error path, and the companion README explains the localhost status check and browser local-network permission.

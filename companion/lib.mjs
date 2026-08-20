@@ -26,6 +26,16 @@ export function validateCompanionRequest(body) {
   return sourceUrl;
 }
 
+export function parseManualPreparationArgs(args) {
+  const values = [...args];
+  const rightsConfirmed = values.includes("--rights-confirmed");
+  const outputFlag = values.indexOf("--output-dir");
+  const outputDir = outputFlag >= 0 ? values[outputFlag + 1] : "output";
+  const sourceUrl = values.find(value => /^https:\/\//i.test(value));
+  if (outputFlag >= 0 && (!outputDir || outputDir.startsWith("--"))) throw new Error("Provide a folder after --output-dir.");
+  return { sourceUrl: validateCompanionRequest({ sourceUrl, rightsConfirmed }), outputDir };
+}
+
 export function buildAudioArgs(inputPath, outputPath) {
   return ["-y", "-i", inputPath, "-vn", "-ac", "1", "-ar", "16000", "-b:a", "32k", "-f", "mp3", outputPath];
 }

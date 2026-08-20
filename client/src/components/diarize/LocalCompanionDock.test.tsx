@@ -63,4 +63,12 @@ describe("LocalCompanionDock", () => {
     await waitFor(() => expect(screen.getByRole("alert").textContent).toMatch(/local-network access/i));
     expect(fetchMock).not.toHaveBeenCalled();
   });
+
+  it("shows the Comet-compatible local file fallback", () => {
+    render(<LocalCompanionDock embedded />);
+    fireEvent.click(screen.getByRole("button", { name: /use local companion/i }));
+    fireEvent.click(screen.getByText(/Comet fallback/i));
+    expect(screen.getByText(/save audio locally/i)).toBeTruthy();
+    expect(screen.getByText(/npm run prepare/i)).toBeTruthy();
+  });
 });
