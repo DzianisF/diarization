@@ -9,9 +9,10 @@ import { copyTranscript, downloadTranscript, timestampLabel } from "@/lib/transc
 import { trpc } from "@/lib/trpc";
 import { makeTranscriptText, validateIntake } from "@/lib/workflow";
 import { Check, CircleAlert, Copy, Download, FileAudio, Link2, Loader2, Mic2, Play, Sparkles, Upload, UsersRound, Waves } from "lucide-react";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import React, { FormEvent, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { getSessionId } from "../lib/session";
+import { LOCAL_FILE_SELECTED_EVENT } from "../components/diarize/PlatformDownloadDock";
 
 type SourceType = "upload" | "url";
 
@@ -64,6 +65,19 @@ export default function Home() {
     }, 650);
     return () => window.clearTimeout(timeout);
   }, [advanceMutation, isRunning, job?.id, job?.stage, sessionId]);
+
+  useEffect(() => {
+    const receiveLocalFile = (event: Event) => {
+      const file = (event as CustomEvent<File>).detail;
+      if (!file) return;
+      setSelectedFile(file);
+      setSourceType("upload");
+      setActiveJobId(null);
+      toast.success("Local file selected. Confirm rights and begin analysis when ready.");
+    };
+    window.addEventListener(LOCAL_FILE_SELECTED_EVENT, receiveLocalFile);
+    return () => window.removeEventListener(LOCAL_FILE_SELECTED_EVENT, receiveLocalFile);
+  }, []);
 
   useEffect(() => {
     if (!job || job.stage !== "complete" || !speakers.length || speakers.some(speaker => Boolean(speaker.suggestion)) || suggestMutation.isPending) return;

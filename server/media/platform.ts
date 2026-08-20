@@ -29,6 +29,17 @@ export function isYouTubeUrl(input: string): boolean {
   } catch { return false; }
 }
 
+export function buildBrowserDownloadFilename(title: string, extension: string): string {
+  const safeTitle = title.replace(/[\\/:*?"<>|\s]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 96) || "diarize-video";
+  const safeExtension = /^[a-z0-9]{1,8}$/i.test(extension) ? extension.toLowerCase() : "webm";
+  return `${safeTitle}.${safeExtension}`;
+}
+
+export function createYouTubeStreamArgs(sourceUrl: string): string[] {
+  if (!isYouTubeUrl(sourceUrl)) throw new Error("Use a public YouTube video URL for browser download.");
+  return ["--format", "worst[acodec!=none][vcodec!=none]/worst", "--output", "-", sourceUrl];
+}
+
 function getYouTubeId(input: string): string {
   const url = new URL(input);
   const hostname = url.hostname.toLowerCase().replace(/^www\./, "");
@@ -68,6 +79,21 @@ async function runYtDlp(args: string[], timeoutMs = PLATFORM_TIMEOUT_MS): Promis
     child.on("error", error => { clearTimeout(timer); reject(error); });
     child.on("close", code => { clearTimeout(timer); code === 0 ? resolve({ stdout, stderr }) : reject(friendlyPlatformError(stderr)); });
   });
+}
+
+export async function inspectYouTubeBrowserDownload(sourceUrl: string): Promise<PlatformMetadata> {
+  const raw = (await runYtDlp(["--skip-download", "--print-json", "--format", "worst[acodec!=none][vcodec!=none]/worst", sourceUrl], 30_000)).stdout.trim();
+  let value: Record<string, unknown>;
+  try { value = JSON.parse(raw) as Record<string, unknown>; } catch { throw new Error("The platform did not return readable video metadata."); }
+  const durationSeconds = Number(value.duration ?? 0);
+  if (!Number.isFinite(durationSeconds) || durationSeconds <= 0 || durationSeconds > MAX_PLATFORM_DURATION_SECONDS) {
+    throw new Error("This platform video must be between 1 second and 60 minutes for browser download.");
+  }
+  return { title: typeof value.title === "string" ? value.title.slice(0, 255) : "Platform video", durationSeconds };
+}
+
+export function spawnYouTubeBrowserDownload(sourceUrl: string) {
+  return spawn("yt-dlp", ["--no-config", "--no-playlist", "--no-warnings", ...createYouTubeStreamArgs(sourceUrl)], { stdio: ["ignore", "pipe", "pipe"] });
 }
 
 function mimeTypeFor(filename: string): string {

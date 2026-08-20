@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { friendlyPlatformError, isYouTubeUrl, parsePlatformMetadata, selectLowestPipedAudio, withPipedFailover } from "./platform";
+import { buildBrowserDownloadFilename, createYouTubeStreamArgs, friendlyPlatformError, isYouTubeUrl, parsePlatformMetadata, selectLowestPipedAudio, withPipedFailover } from "./platform";
 
 describe("platform media", () => {
   it("recognizes supported public YouTube page URLs", () => {
@@ -40,5 +40,12 @@ describe("platform media", () => {
 
   it("describes YouTube anti-bot rejection without mislabeling a public video as private", () => {
     expect(friendlyPlatformError("Sign in to confirm you’re not a bot").message).toContain("browser verification");
+  });
+
+  it("creates a bounded progressive-video streaming plan for browser download", () => {
+    expect(createYouTubeStreamArgs("https://www.youtube.com/watch?v=aqz-KE-bpKQ")).toEqual(expect.arrayContaining([
+      "--format", "worst[acodec!=none][vcodec!=none]/worst", "--output", "-",
+    ]));
+    expect(buildBrowserDownloadFilename("A / title: sample", "mp4")).toBe("A-title-sample.mp4");
   });
 });

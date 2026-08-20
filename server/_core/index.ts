@@ -12,6 +12,7 @@ import { serveStatic, setupVite } from "./vite";
 import { getSessionJob, updateSessionJob } from "../db";
 import { storagePut } from "../storage";
 import { MAX_SOURCE_BYTES } from "../media/upload";
+import { buildBrowserDownloadFilename, friendlyPlatformError, inspectYouTubeBrowserDownload, spawnYouTubeBrowserDownload } from "../media/platform";
 
 const mediaUpload = multer({
   storage: multer.memoryStorage(),
@@ -83,6 +84,37 @@ async function startServer() {
       const message = error instanceof Error ? error.message : "Unable to store the uploaded file.";
       await updateSessionJob(jobId, sessionId, { stage: "failed", errorMessage: message });
       res.status(500).json({ error: message });
+    }
+  });
+  app.get("/api/platform-download", async (req, res) => {
+    const sourceUrl = typeof req.query.url === "string" ? req.query.url : "";
+    if (req.query.rights !== "true") {
+      res.status(400).json({ error: "Confirm that you have the right to save this media before requesting a download." });
+      return;
+    }
+    try {
+      const metadata = await inspectYouTubeBrowserDownload(sourceUrl);
+      const filename = buildBrowserDownloadFilename(metadata.title, "webm");
+      res.status(200);
+      res.setHeader("Content-Type", "application/octet-stream");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.setHeader("Cache-Control", "no-store");
+      const child = spawnYouTubeBrowserDownload(sourceUrl);
+      let stderr = "";
+      const timeout = setTimeout(() => child.kill("SIGKILL"), 165_000);
+      child.stderr.on("data", chunk => { stderr += String(chunk); });
+      child.stdout.pipe(res);
+      const stop = () => { clearTimeout(timeout); if (!child.killed) child.kill("SIGKILL"); };
+      req.on("close", stop);
+      child.on("close", code => {
+        clearTimeout(timeout);
+        if (code !== 0 && !res.headersSent) res.status(502).json({ error: friendlyPlatformError(stderr).message });
+        else if (!res.writableEnded) res.end();
+      });
+      child.on("error", () => { clearTimeout(timeout); if (!res.headersSent) res.status(502).json({ error: "The platform download process could not start." }); else res.end(); });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to prepare a browser download from this platform URL.";
+      res.status(422).json({ error: message });
     }
   });
   // tRPC API
