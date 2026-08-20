@@ -35,3 +35,9 @@ At 375 px width, the two secondary actions are rendered in the document flow bet
 The header now exposes an RU/EN control. Its preference persists in browser storage and applies Russian text to the main intake, history, processing stages, participant actions, transcript export, platform download, and local video-preparation messages. Dynamic browser-download and local-preparation progress text is also observed and translated after state changes.
 
 The localization release gate passed 25 Vitest files with 54 tests, `pnpm check`, and `pnpm run build`. Tests cover bidirectional dictionary lookup, persistence of the selected Russian locale, visible Russian intake controls on the full Home page, plus translated processing, SRT/VTT export, platform-download, and local-preparation panels.
+
+## 2026-08-20 Recheck of `8bMXdkVpHn4`
+
+With the rights-confirmed browser-download route, `https://www.youtube.com/watch?v=8bMXdkVpHn4` returned HTTP 422 before a response stream was created. The upstream diagnostic was: `YouTube requested browser verification and rejected this free server.` Therefore neither direct server-side audio extraction nor writing a temporary video file can begin for this source in the current hosting environment. The existing Piped fallback is also best-effort and was unavailable during the original production verification.
+
+The stream-to-browser feature is an **egress** path only: it passes bytes to the device after `yt-dlp` has already obtained an accessible stream. It does not make YouTube grant source access and cannot bypass browser verification. A server-local temporary file would have the same prerequisite and would additionally be constrained by the serverless request lifetime and ephemeral disk.
