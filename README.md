@@ -12,8 +12,13 @@
 | Speaker assistance | Optional role suggestions generated from the completed dialogue only; they are not identity claims. |
 | Output | Toggle timestamps, copy text, or download `.txt`, `.srt`, and `.vtt` exports with speaker names and cue timing. |
 | History | Stored and shown within the current browser session only. |
+| Interface language | The RU/EN control in the header switches the main interface language and remembers the choice in this browser. |
 
 > **YouTube is best-effort.** A public YouTube page URL first attempts to retrieve the lightest available audio stream directly, then tries a short list of public Piped relays. Either route can fail when YouTube blocks the hosting IP, requires sign-in, changes its delivery format, or a relay is unavailable. The error message directs the user to upload a permitted local file instead. Vimeo and other platform pages remain unsupported in this release.
+
+### Russian interface
+
+Use the compact **RU/EN** control in the header to choose Russian or English. The preference is stored only in the browser, and the user can return to English at any time. The central intake, processing stages, history, participant actions, video download, local video preparation, and transcript export controls are included in the Russian translation layer.
 
 ### Save a supported video to the device
 

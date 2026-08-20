@@ -16,6 +16,7 @@ import { LOCAL_FILE_SELECTED_EVENT } from "../components/diarize/PlatformDownloa
 import { PlatformDownloadDock } from "../components/diarize/PlatformDownloadDock";
 import { LocalMediaPreparationDock } from "../components/diarize/LocalMediaPreparationDock";
 import { TranscriptControls } from "../components/diarize/TranscriptControls";
+import { useLocale } from "../contexts/LocaleContext";
 
 type SourceType = "upload" | "url";
 
@@ -33,6 +34,7 @@ const stageCopy: Record<string, string> = {
 const processingStages = ["uploading", "preparing_source", "getting_platform_media", "extracting_audio", "transcribing", "diarizing"];
 
 export default function Home() {
+  const { locale, toggleLocale } = useLocale();
   const [sessionId] = useState(getSessionId);
   const [sourceType, setSourceType] = useState<SourceType>("upload");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -138,7 +140,7 @@ export default function Home() {
       <div className="relative z-10 mx-auto max-w-[1540px]">
         <header className="mb-5 flex items-center justify-between gap-4 border-b border-[#b49345]/25 pb-5">
           <div className="flex items-center gap-3"><div className="grid size-11 place-items-center rounded-full border border-[#b49345]/60 bg-[#fbf5e5]/80"><Waves className="size-5 text-[#b49345]" /></div><div><p className="font-display text-xl font-semibold tracking-[-.05em] text-[#17243c]">Diarize</p><p className="text-[10px] uppercase tracking-[.22em] text-[#a17d35]">Conversation intelligence</p></div></div>
-          <p className="hidden items-center gap-2 text-xs text-[#786747] sm:flex"><Sparkles className="size-3.5" /> Private session workspace</p>
+          <div className="flex items-center gap-2"><p className="hidden items-center gap-2 text-xs text-[#786747] sm:flex"><Sparkles className="size-3.5" /> Private session workspace</p><Button type="button" variant="outline" size="sm" onClick={toggleLocale} aria-label={locale === "ru" ? "Switch interface to English" : "Переключить интерфейс на русский"} className="h-8 border-[#b49345]/35 bg-[#fffaf0]/80 px-2 text-xs text-[#675633]">{locale === "ru" ? "EN" : "RU"}</Button></div>
         </header>
         <p className="mb-4 rounded-xl border border-[#b49345]/25 bg-[#f8efd9]/75 px-4 py-2.5 text-xs leading-5 text-[#735f35]">YouTube links are supported on a best-effort basis: Diarize attempts to fetch the lightest available public audio stream. If the platform blocks access or a file exceeds the limit, upload the permitted audio/video file instead.</p>
         <div className="mb-4 flex flex-wrap justify-center gap-2 sm:hidden"><LocalMediaPreparationDock embedded /><PlatformDownloadDock embedded /></div>

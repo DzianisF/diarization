@@ -5,6 +5,7 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { PlatformDownloadDock } from "./components/diarize/PlatformDownloadDock";
 import { LocalMediaPreparationDock } from "./components/diarize/LocalMediaPreparationDock";
+import { LocaleProvider } from "./contexts/LocaleContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 
@@ -28,7 +29,7 @@ function Router() {
 function App() {
   return (
     <ErrorBoundary>
-      <ThemeProvider
+      <LocaleProvider><ThemeProvider
         defaultTheme="light"
         // switchable
       >
@@ -38,7 +39,7 @@ function App() {
           <div className="hidden sm:block"><LocalMediaPreparationDock /></div>
           <div className="hidden sm:block"><PlatformDownloadDock /></div>
         </TooltipProvider>
-      </ThemeProvider>
+      </ThemeProvider></LocaleProvider>
     </ErrorBoundary>
   );
 }

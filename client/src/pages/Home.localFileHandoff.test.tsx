@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 import React from "react";
-import { act, fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LOCAL_FILE_SELECTED_EVENT } from "../components/diarize/PlatformDownloadDock";
+import { LocaleProvider } from "../contexts/LocaleContext";
 
 class ResizeObserverMock {
   observe() {}
@@ -40,13 +41,23 @@ import Home from "./Home";
 
 describe("Home local-file handoff", () => {
   beforeEach(() => {
+    localStorage.clear();
     vi.clearAllMocks();
     mocks.createMutation.mutateAsync.mockResolvedValue({ job: { id: "new-job" } });
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true }));
   });
+  afterEach(() => cleanup());
+
+  it("switches the visible intake controls to Russian", async () => {
+    render(<LocaleProvider><Home /></LocaleProvider>);
+    fireEvent.click(screen.getByRole("button", { name: /переключить интерфейс на русский/i }));
+    await waitFor(() => expect(screen.getByText("Начать анализ")).toBeTruthy());
+    expect(screen.getByText("Локальный файл")).toBeTruthy();
+    expect(screen.getByText("Необязательные имена участников")).toBeTruthy();
+  });
 
   it("returns from direct URL mode to a valid local-file submission after a saved file is selected", async () => {
-    render(<Home />);
+    render(<LocaleProvider><Home /></LocaleProvider>);
     fireEvent.click(screen.getByRole("button", { name: "Direct URL" }));
     expect(screen.getByLabelText("Direct public media URL")).toBeTruthy();
 

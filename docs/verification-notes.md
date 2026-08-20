@@ -29,3 +29,9 @@ The left-side **Prepare long video** entry point is visible without overlapping 
 The final gate for this change passed 23 Vitest files with 50 tests, `pnpm check`, and `pnpm run build`. A stream test writes multiple received chunks through a mocked File System Access handle and verifies the reported byte counts. The jsdom test environment logs an expected warning when it simulates navigation from the native download anchor; production uses the browser download manager for that fallback path.
 
 At 375 px width, the two secondary actions are rendered in the document flow between the explanatory notice and the intake card. The action row is visible and the Local file selector remains unobscured; fixed versions are retained only at `sm` widths and above.
+
+## 2026-08-20 Russian interface check
+
+The header now exposes an RU/EN control. Its preference persists in browser storage and applies Russian text to the main intake, history, processing stages, participant actions, transcript export, platform download, and local video-preparation messages. Dynamic browser-download and local-preparation progress text is also observed and translated after state changes.
+
+The localization release gate passed 25 Vitest files with 54 tests, `pnpm check`, and `pnpm run build`. Tests cover bidirectional dictionary lookup, persistence of the selected Russian locale, visible Russian intake controls on the full Home page, plus translated processing, SRT/VTT export, platform-download, and local-preparation panels.
