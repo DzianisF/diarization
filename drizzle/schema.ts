@@ -28,6 +28,7 @@ export type InsertUser = typeof users.$inferInsert;
 export const jobStageEnum = mysqlEnum("jobStage", [
   "uploading",
   "preparing_source",
+  "getting_platform_media",
   "extracting_audio",
   "transcribing",
   "diarizing",
@@ -38,7 +39,7 @@ export const jobStageEnum = mysqlEnum("jobStage", [
 export const transcriptionJobs = mysqlTable("transcriptionJobs", {
   id: varchar("id", { length: 36 }).primaryKey(),
   sessionId: varchar("sessionId", { length: 64 }).notNull(),
-  sourceType: mysqlEnum("sourceType", ["upload", "url"]).notNull(),
+  sourceType: mysqlEnum("sourceType", ["upload", "url", "platform"]).notNull(),
   sourceUrl: text("sourceUrl"),
   sourceKey: varchar("sourceKey", { length: 512 }),
   audioKey: varchar("audioKey", { length: 512 }),

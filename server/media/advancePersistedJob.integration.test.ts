@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   transcribeAudio: vi.fn(),
   diarizeAudio: vi.fn(),
   mergeSpeakerTurns: vi.fn(),
+  downloadYouTubeMedia: vi.fn(),
 }));
 
 vi.mock("../db", () => ({ getSessionJob: mocks.getSessionJob, updateSessionJob: mocks.updateSessionJob, saveCompletedTranscript: mocks.saveCompletedTranscript, saveSessionSuggestions: vi.fn() }));
@@ -18,6 +19,7 @@ vi.mock("./ffmpeg", () => ({ extractCompatibleAudio: mocks.extractCompatibleAudi
 vi.mock("./deepgram", () => ({ diarizeAudio: mocks.diarizeAudio }));
 vi.mock("./merge", () => ({ mergeSpeakerTurns: mocks.mergeSpeakerTurns }));
 vi.mock("./suggestions", () => ({ suggestSpeakerRoles: vi.fn() }));
+vi.mock("./platform", () => ({ downloadYouTubeMedia: mocks.downloadYouTubeMedia }));
 import { advancePersistedJob } from "./jobs";
 
 describe("advancePersistedJob integration", () => {
@@ -63,5 +65,16 @@ describe("advancePersistedJob integration", () => {
 
     expect(mocks.transcribeAudio).toHaveBeenCalledWith({ audioUrl: "https://signed.example/normalized.mp3" });
     expect(mocks.updateSessionJob).toHaveBeenCalledWith("job-1", "session-1", expect.objectContaining({ transcriptText: "Hello", stage: "diarizing", progress: 75 }));
+  });
+
+  it("stores the selected lightweight YouTube audio before extraction", async () => {
+    const job = { id: "job-1", sessionId: "session-1", sourceUrl: "https://youtu.be/dQw4w9WgXcQ", stage: "getting_platform_media" };
+    mocks.getSessionJob.mockResolvedValue({ job, turns: [], speakers: [] });
+    mocks.downloadYouTubeMedia.mockResolvedValue({ key: "platform.webm", sourceName: "Public video", mimeType: "audio/webm", byteLength: 1024 });
+
+    await advancePersistedJob("job-1", "session-1");
+
+    expect(mocks.downloadYouTubeMedia).toHaveBeenCalledWith({ jobId: "job-1", sourceUrl: "https://youtu.be/dQw4w9WgXcQ" });
+    expect(mocks.updateSessionJob).toHaveBeenCalledWith("job-1", "session-1", expect.objectContaining({ sourceKey: "platform.webm", stage: "extracting_audio", progress: 25 }));
   });
 });

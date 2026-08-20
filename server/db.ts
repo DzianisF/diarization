@@ -188,7 +188,7 @@ export async function saveCompletedTranscript(
 export async function prepareSessionSpeakers(jobId: string, sessionId: string, names: string[]) {
   const db = requireDb(await getDb());
   const existing = await getSessionJob(jobId, sessionId);
-  if (!existing || !["uploading", "preparing_source"].includes(existing.job.stage) || !names.length) return existing;
+  if (!existing || !["uploading", "preparing_source", "getting_platform_media"].includes(existing.job.stage) || !names.length) return existing;
   await db.insert(speakerProfiles).values(names.map((displayName, index) => ({
     jobId,
     speakerKey: `prepared:${index}`,

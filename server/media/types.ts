@@ -1,6 +1,7 @@
 export const jobStages = [
   "uploading",
   "preparing_source",
+  "getting_platform_media",
   "extracting_audio",
   "transcribing",
   "diarizing",
@@ -41,6 +42,7 @@ export type MediaJob = {
 const nextStage: Record<Exclude<JobStage, "complete" | "failed">, JobStage> = {
   uploading: "extracting_audio",
   preparing_source: "extracting_audio",
+  getting_platform_media: "extracting_audio",
   extracting_audio: "transcribing",
   transcribing: "diarizing",
   diarizing: "complete",
@@ -61,6 +63,7 @@ export function userFacingStage(stage: JobStage): string {
   const labels: Record<JobStage, string> = {
     uploading: "uploading",
     preparing_source: "preparing direct URL",
+    getting_platform_media: "getting YouTube media",
     extracting_audio: "extracting audio",
     transcribing: "transcribing",
     diarizing: "diarizing",

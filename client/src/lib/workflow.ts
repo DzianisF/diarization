@@ -8,7 +8,7 @@ export type IntakeSource = {
 export function validateIntake(source: IntakeSource): string | null {
   if (!source.rightsConfirmed) return "Confirm you have the right to process this media.";
   if (source.sourceType === "upload" && !source.hasFile) return "Choose an audio or video file.";
-  if (source.sourceType === "url" && !source.sourceUrl.trim()) return "Paste a direct HTTPS media URL.";
+  if (source.sourceType === "url" && !source.sourceUrl.trim()) return "Paste a public media or YouTube URL.";
   return null;
 }
 

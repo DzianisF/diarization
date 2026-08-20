@@ -1,0 +1,2 @@
+ALTER TABLE `transcriptionJobs` MODIFY COLUMN `sourceType` enum('upload','url','platform') NOT NULL;--> statement-breakpoint
+ALTER TABLE `transcriptionJobs` MODIFY COLUMN `jobStage` enum('uploading','preparing_source','getting_platform_media','extracting_audio','transcribing','diarizing','complete','failed') NOT NULL DEFAULT 'uploading';

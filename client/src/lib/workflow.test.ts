@@ -13,7 +13,7 @@ describe("intake and export workflow", () => {
 
   it("blocks an empty direct URL while allowing a prepared URL flow", () => {
     expect(validateIntake({ sourceType: "url", hasFile: false, sourceUrl: "", rightsConfirmed: true }))
-      .toBe("Paste a direct HTTPS media URL.");
+      .toBe("Paste a public media or YouTube URL.");
     expect(validateIntake({ sourceType: "url", hasFile: false, sourceUrl: "https://cdn.example.org/call.mp3", rightsConfirmed: true })).toBeNull();
   });
 

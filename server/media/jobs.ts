@@ -11,6 +11,7 @@ import { extractCompatibleAudio } from "./ffmpeg";
 import { mergeSpeakerTurns } from "./merge";
 import { suggestSpeakerRoles } from "./suggestions";
 import { storeRemoteMedia } from "./upload";
+import { downloadYouTubeMedia } from "./platform";
 import type { JobStage, MediaJob } from "./types";
 
 type AdvancableJob = Pick<MediaJob, "id" | "sessionId" | "stage" | "progress" | "sourceKey">;
@@ -26,6 +27,7 @@ type JobDependencies = {
 
 const nextStage: Partial<Record<JobStage, { stage: JobStage; progress: number; run?: keyof Omit<JobDependencies, "save"> }>> = {
   preparing_source: { stage: "extracting_audio", progress: 25, run: "prepare" },
+  getting_platform_media: { stage: "extracting_audio", progress: 25, run: "prepare" },
   extracting_audio: { stage: "transcribing", progress: 50, run: "extract" },
   transcribing: { stage: "diarizing", progress: 75, run: "transcribe" },
   diarizing: { stage: "complete", progress: 100, run: "diarize" },
@@ -62,6 +64,19 @@ export async function advancePersistedJob(id: string, sessionId: string) {
         const stored = await storeRemoteMedia({ jobId: job.id, sourceUrl: job.sourceUrl });
         return updateSessionJob(id, sessionId, {
           sourceKey: stored.key,
+          sourceMimeType: stored.mimeType,
+          sourceBytes: stored.byteLength,
+          stage: "extracting_audio",
+          progress: 25,
+          errorMessage: null,
+        });
+      }
+      case "getting_platform_media": {
+        if (!job.sourceUrl) throw new Error("No platform URL is attached to this job.");
+        const stored = await downloadYouTubeMedia({ jobId: job.id, sourceUrl: job.sourceUrl });
+        return updateSessionJob(id, sessionId, {
+          sourceKey: stored.key,
+          sourceName: stored.sourceName,
           sourceMimeType: stored.mimeType,
           sourceBytes: stored.byteLength,
           stage: "extracting_audio",

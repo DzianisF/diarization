@@ -14,6 +14,7 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { advancePersistedJob, suggestPersistedRoles } from "./media/jobs";
 import { validatePublicMediaUrl } from "./media/urlSafety";
+import { isYouTubeUrl } from "./media/platform";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -45,17 +46,19 @@ export const appRouter = router({
       preparedNames: z.array(z.string().trim().min(1).max(48)).max(8).optional(),
       rightsConfirmed: z.literal(true),
     })).mutation(async ({ input }) => {
-      if (input.sourceType === "url" && !input.sourceUrl) throw new Error("A direct media URL is required.");
-      if (input.sourceUrl) validatePublicMediaUrl(input.sourceUrl);
+      if (input.sourceType === "url" && !input.sourceUrl) throw new Error("A public media URL is required.");
+      const isPlatform = Boolean(input.sourceUrl && isYouTubeUrl(input.sourceUrl));
+      if (input.sourceUrl && !isPlatform) validatePublicMediaUrl(input.sourceUrl);
+      const storedSourceType = isPlatform ? "platform" : input.sourceType;
       const id = nanoid(21);
       const created = await createTranscriptionJob({
         id,
         sessionId: input.sessionId,
-        sourceType: input.sourceType,
+        sourceType: storedSourceType,
         sourceUrl: input.sourceUrl ?? null,
         sourceName: input.sourceName ?? null,
-        stage: input.sourceType === "url" ? "preparing_source" : "uploading",
-        progress: input.sourceType === "url" ? 12 : 5,
+        stage: isPlatform ? "getting_platform_media" : input.sourceType === "url" ? "preparing_source" : "uploading",
+        progress: isPlatform ? 8 : input.sourceType === "url" ? 12 : 5,
       });
 
       return prepareSessionSpeakers(id, input.sessionId, input.preparedNames ?? []) ?? created;

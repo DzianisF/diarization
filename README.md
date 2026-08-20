@@ -1,23 +1,23 @@
 # Diarize
 
-**Diarize** is a browser workspace for converting a recording into an editable, speaker-labelled dialogue. It accepts a local audio/video file or a direct public HTTPS URL to a media file, normalizes its audio track with `ffmpeg`, transcribes it with Whisper, aligns an acoustic speaker-diarization response, and presents a copyable/downloadable transcript.
+**Diarize** is a browser workspace for converting a recording into an editable, speaker-labelled dialogue. It accepts a local audio/video file, a direct public HTTPS URL to a media file, or a supported public YouTube page URL on a best-effort basis; it then normalizes the audio track with `ffmpeg`, transcribes it with Whisper, aligns an acoustic speaker-diarization response, and presents a copyable/downloadable transcript.
 
 ## What the first release supports
 
 | Capability | Behaviour |
 | --- | --- |
-| Media input | A local audio/video file or a final public `https://` URL to a media file. |
-| Processing | Explicit stages: uploading, extracting audio, transcribing, diarizing, then complete or failed. |
+| Media input | A local file, final public `https://` media URL, or a public YouTube page URL. |
+| Processing | Explicit stages: uploading, preparing a direct URL or YouTube media, extracting audio, transcribing, diarizing, then complete or failed. |
 | Transcript | Whisper text with diarizer-aligned `Speaker 1`, `Speaker 2`, and later display-name editing. |
 | Speaker assistance | Optional role suggestions generated from the completed dialogue only; they are not identity claims. |
 | Output | Toggle timestamps, copy text, or download a `.txt` file using the same format. |
 | History | Stored and shown within the current browser session only. |
 
-> **Direct media only.** This serverless release intentionally rejects YouTube, Vimeo, social-media, and other page URLs. Provide the final audio/video file URL instead. The interface asks the person submitting media to confirm their right to process it.
+> **YouTube is best-effort.** A public YouTube page URL first attempts to retrieve the lightest available audio stream directly, then tries a short list of public Piped relays. Either route can fail when YouTube blocks the hosting IP, requires sign-in, changes its delivery format, or a relay is unavailable. The error message directs the user to upload a permitted local file instead. Vimeo and other platform pages remain unsupported in this release.
 
 ## Serverless limits
 
-The built-in Whisper integration accepts audio up to **16 MB**, so the source upload and direct download are bounded at that size. `ffmpeg` converts video or audio to a 16 kHz mono MP3 before speech services run. Very long recordings or media that cannot be compressed below the limit will receive an explicit failure message; shorten or pre-compress them before retrying.
+The built-in Whisper integration accepts audio up to **16 MB**, so the source upload, direct download, and selected platform stream are bounded at that size. Platform pages are additionally limited to **60 minutes** and a short request window. `ffmpeg` converts video or audio to a 16 kHz mono MP3 before speech services run. Very long recordings or media that cannot be compressed below the limit will receive an explicit failure message; shorten or pre-compress them before retrying.
 
 Source and normalized media bytes are kept in managed S3 storage. Job metadata, transcript turns, editable speaker profiles, and suggestions are kept in the database. API credentials stay on the server.
 
@@ -44,7 +44,7 @@ pnpm run build
 
 ## Deployment
 
-The root `Dockerfile` is deliberately small and adds only `ffmpeg` to the Node build image. The production server listens on the hosting platform’s `PORT` environment variable. After a verified project checkpoint, publish from the project management interface to use the included hosted URL.
+The root `Dockerfile` adds `ffmpeg`, Python, and `yt-dlp` to the Node build image. The production server listens on the hosting platform’s `PORT` environment variable. After a verified project checkpoint, publish from the project management interface to use the included hosted URL.
 
 ## Visual verification
 
