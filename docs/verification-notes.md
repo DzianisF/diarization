@@ -49,3 +49,9 @@ The `companion` package starts a localhost-only HTTP service on `127.0.0.1:38491
 The web-panel test verifies both an authorized local-job request and the ready-audio handoff back into Diarize’s Local file event. The companion’s unit tests verify origin controls, URL/rights validation, and audio-only ffmpeg arguments. This confirms the local protocol and UI handoff, not YouTube’s willingness to serve a particular video on every user network.
 
 The companion now rejects a foreign origin with HTTP 403. A direct test of the published Diarize origin received a valid handshake response; a job request without its fresh nonce was rejected with HTTP 400 before any source retrieval began. The API’s CORS allowlist is exact rather than a wildcard for unrelated Manus sites.
+
+## 2026-08-20 Companion startup diagnostic check
+
+The companion panel now displays the exact startup command (`cd companion && npm start`) before a request is submitted and explains that the terminal must remain open. A browser `Failed to fetch` is converted to a clear local-service diagnostic rather than being shown as raw technical text. The test suite validates this error path, and the companion README explains the localhost status check and browser local-network permission.
+
+The release gate passed 26 Vitest files with 57 tests, `pnpm check`, `pnpm run build`, the companion unit tests, and a Node syntax check.

@@ -40,4 +40,15 @@ describe("LocalCompanionDock", () => {
     await waitFor(() => expect(received[0]?.name).toBe("speech.mp3"));
     expect(received[0]?.type).toBe("audio/mpeg");
   });
+
+  it("turns a browser fetch failure into startup instructions", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
+    render(<LocalCompanionDock embedded />);
+    fireEvent.click(screen.getByRole("button", { name: /use local companion/i }));
+    fireEvent.change(screen.getByLabelText(/public youtube url/i), { target: { value: "https://www.youtube.com/watch?v=8bMXdkVpHn4" } });
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: /prepare with companion/i }));
+    await waitFor(() => expect(screen.getByRole("alert").textContent).toMatch(/start it in the repository/i));
+    expect(screen.getByRole("note").textContent).toMatch(/npm start/);
+  });
 });

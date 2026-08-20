@@ -17,3 +17,9 @@ npm start
 ```
 
 Keep the terminal open. In the Diarize web app, open **Use local companion**, paste a public YouTube URL, confirm you have permission, and start preparation. The companion is best-effort: YouTube can still reject its request, require a sign-in, or change delivery rules. It intentionally does not import browser cookies or attempt to bypass verification.
+
+## If Diarize says `Failed to fetch`
+
+That error means the web page cannot reach the companion on your own computer yet; it does **not** mean that YouTube rejected the media. First make sure the `npm start` terminal remains open and says it is listening on `http://127.0.0.1:38491`. Then open `http://127.0.0.1:38491/v1/status` in the same browser; it should display JSON with `"ok": true`. If your browser asks for local-network permission, allow it. Finally, reload the Diarize page and open **Use local companion** again.
+
+On macOS, run `brew install node yt-dlp ffmpeg`; on Ubuntu/Debian, install Node.js 20+, `yt-dlp`, and `ffmpeg` with your preferred trusted package source; on Windows, install Node.js LTS and then `yt-dlp` plus FFmpeg using `winget` or another trusted package manager. Confirm each command is available with `node --version`, `yt-dlp --version`, and `ffmpeg -version` before running `npm start`.
