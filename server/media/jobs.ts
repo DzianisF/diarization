@@ -102,7 +102,10 @@ export async function advancePersistedJob(id: string, sessionId: string) {
         if (!job.audioKey) throw new Error("Audio extraction did not produce a file.");
         const audioUrl = await storageGetSignedUrl(job.audioKey);
         const response = await transcribeAudio({ audioUrl });
-        if ("error" in response) throw new Error(response.error);
+        if ("error" in response) {
+          const detail = response.details ? `: ${response.details.slice(0, 500)}` : "";
+          throw new Error(`${response.error}${detail}`);
+        }
         return updateSessionJob(id, sessionId, {
           transcriptText: response.text,
           detectedLanguage: response.language,

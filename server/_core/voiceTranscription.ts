@@ -56,6 +56,29 @@ export type WhisperResponse = {
   segments: WhisperSegment[];
 };
 
+const STORED_AUDIO_FETCH_TIMEOUT_MS = 30_000;
+const WHISPER_REQUEST_TIMEOUT_MS = 105_000;
+
+async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit | undefined,
+  timeoutMs: number,
+  operation: string,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new Error(`${operation} timed out after ${Math.round(timeoutMs / 1000)} seconds.`);
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 export type TranscriptionResponse = WhisperResponse; // Return native Whisper API response directly
 
 export type TranscriptionError = {
@@ -71,7 +94,8 @@ export type TranscriptionError = {
  * @returns Transcription result or error
  */
 export async function transcribeAudio(
-  options: TranscribeOptions
+  options: TranscribeOptions,
+  whisperRequestTimeoutMs = WHISPER_REQUEST_TIMEOUT_MS,
 ): Promise<TranscriptionResponse | TranscriptionError> {
   try {
     // Step 1: Validate environment configuration
@@ -94,7 +118,12 @@ export async function transcribeAudio(
     let audioBuffer: Buffer;
     let mimeType: string;
     try {
-      const response = await fetch(options.audioUrl);
+      const response = await fetchWithTimeout(
+        options.audioUrl,
+        undefined,
+        STORED_AUDIO_FETCH_TIMEOUT_MS,
+        "Stored audio download",
+      );
       if (!response.ok) {
         return {
           error: "Failed to download audio file",
@@ -152,14 +181,19 @@ export async function transcribeAudio(
       baseUrl
     ).toString();
 
-    const response = await fetch(fullUrl, {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${ENV.forgeApiKey}`,
-        "Accept-Encoding": "identity",
+    const response = await fetchWithTimeout(
+      fullUrl,
+      {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${ENV.forgeApiKey}`,
+          "Accept-Encoding": "identity",
+        },
+        body: formData,
       },
-      body: formData,
-    });
+      whisperRequestTimeoutMs,
+      "Whisper transcription request",
+    );
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => "");

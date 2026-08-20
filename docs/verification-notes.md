@@ -69,3 +69,11 @@ The Comet fallback UI and the companion CLI parser are covered by automated test
 The companion panel now displays the exact startup command (`cd companion && npm start`) before a request is submitted and explains that the terminal must remain open. A browser `Failed to fetch` is converted to a clear local-service diagnostic rather than being shown as raw technical text. The test suite validates this error path, and the companion README explains the localhost status check and browser local-network permission.
 
 The release gate passed 26 Vitest files with 57 tests, `pnpm check`, `pnpm run build`, the companion unit tests, and a Node syntax check.
+
+## 2026-08-20 Whisper timeout and analytics diagnostic
+
+A reported `net::ERR_BLOCKED_BY_CLIENT` request to `api2.amplitude.com` is not part of the Diarize transcription path. The application does not import Amplitude; its only configured analytics loader is Umami. The blocked request can therefore be ignored or allowlisted in a content blocker without granting the blocker any role in media processing.
+
+The affected persisted upload completed audio normalization but remained at `transcribing` (50%) without a saved failure message. The Whisper helper previously had no request deadline, so an upstream request that did not return could consume the serverless invocation and leave the job in that intermediate state. Stored-audio download now has a 30-second deadline and the Whisper request has a 105-second deadline. A deadline or service failure is persisted as `failed` with its safe diagnostic instead of remaining indefinitely at 50%. Refreshing the page resumes any existing nonterminal job through the ordinary advancement loop.
+
+The release gate passed 27 Vitest files with 61 tests, `pnpm check`, and `pnpm run build`. Tests cover the abort path and preservation of the Whisper diagnostic in the job record.

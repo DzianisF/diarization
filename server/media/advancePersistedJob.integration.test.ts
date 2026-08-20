@@ -67,6 +67,24 @@ describe("advancePersistedJob integration", () => {
     expect(mocks.updateSessionJob).toHaveBeenCalledWith("job-1", "session-1", expect.objectContaining({ transcriptText: "Hello", stage: "diarizing", progress: 75 }));
   });
 
+  it("persists Whisper error details instead of leaving a transcription job running", async () => {
+    const job = { id: "job-1", sessionId: "session-1", audioKey: "normalized.mp3", stage: "transcribing" };
+    mocks.getSessionJob.mockResolvedValue({ job, turns: [], speakers: [] });
+    mocks.storageGetSignedUrl.mockResolvedValue("https://signed.example/normalized.mp3");
+    mocks.transcribeAudio.mockResolvedValue({
+      error: "Voice transcription failed",
+      code: "SERVICE_ERROR",
+      details: "Whisper transcription request timed out after 105 seconds.",
+    });
+
+    await advancePersistedJob("job-1", "session-1");
+
+    expect(mocks.updateSessionJob).toHaveBeenCalledWith("job-1", "session-1", expect.objectContaining({
+      stage: "failed",
+      errorMessage: "Voice transcription failed: Whisper transcription request timed out after 105 seconds.",
+    }));
+  });
+
   it("stores the selected lightweight YouTube audio before extraction", async () => {
     const job = { id: "job-1", sessionId: "session-1", sourceUrl: "https://youtu.be/dQw4w9WgXcQ", stage: "getting_platform_media" };
     mocks.getSessionJob.mockResolvedValue({ job, turns: [], speakers: [] });
