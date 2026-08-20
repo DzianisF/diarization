@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
-import { copyTranscript, downloadTranscript, timestampLabel } from "@/lib/transcript";
+import { copyTranscript, downloadTranscript, makeSrt, makeVtt, timestampLabel } from "@/lib/transcript";
 import { trpc } from "@/lib/trpc";
 import { makeTranscriptText, validateIntake } from "@/lib/workflow";
 import { Check, CircleAlert, Copy, Download, FileAudio, Link2, Loader2, Mic2, Play, Sparkles, Upload, UsersRound, Waves } from "lucide-react";
@@ -13,6 +13,9 @@ import React, { FormEvent, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { getSessionId } from "../lib/session";
 import { LOCAL_FILE_SELECTED_EVENT } from "../components/diarize/PlatformDownloadDock";
+import { PlatformDownloadDock } from "../components/diarize/PlatformDownloadDock";
+import { LocalMediaPreparationDock } from "../components/diarize/LocalMediaPreparationDock";
+import { TranscriptControls } from "../components/diarize/TranscriptControls";
 
 type SourceType = "upload" | "url";
 
@@ -89,6 +92,8 @@ export default function Home() {
     return speaker?.displayName || speaker?.defaultName || "Speaker";
   };
   const exportText = makeTranscriptText(turns, speakerName, timestampLabel, showTimestamps);
+  const srtExport = makeSrt(turns, speakerName);
+  const vttExport = makeVtt(turns, speakerName);
 
   async function submitSource(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -136,6 +141,7 @@ export default function Home() {
           <p className="hidden items-center gap-2 text-xs text-[#786747] sm:flex"><Sparkles className="size-3.5" /> Private session workspace</p>
         </header>
         <p className="mb-4 rounded-xl border border-[#b49345]/25 bg-[#f8efd9]/75 px-4 py-2.5 text-xs leading-5 text-[#735f35]">YouTube links are supported on a best-effort basis: Diarize attempts to fetch the lightest available public audio stream. If the platform blocks access or a file exceeds the limit, upload the permitted audio/video file instead.</p>
+        <div className="mb-4 flex flex-wrap justify-center gap-2 sm:hidden"><LocalMediaPreparationDock embedded /><PlatformDownloadDock embedded /></div>
 
         <div className="grid gap-5 xl:grid-cols-[244px_minmax(0,1fr)_280px]">
           <aside className="order-3 rounded-2xl border border-[#b49345]/20 bg-[#fdf9ee]/70 p-3 xl:order-1">
@@ -149,6 +155,7 @@ export default function Home() {
           <aside className="order-2 rounded-2xl border border-[#b49345]/20 bg-[#fdf9ee]/70 p-4 xl:order-3"><div className="mb-4 flex items-center gap-2"><UsersRound className="size-4 text-[#a17d35]" /><div><p className="section-kicker">Participants</p><h2 className="font-display text-lg text-[#17243c]">Voices in focus</h2></div></div>{speakers.length ? <div className="space-y-3">{speakers.map((speaker, index) => <div key={speaker.speakerKey} className="rounded-xl border border-[#b49345]/20 bg-[#fffdf7] p-3"><div className="mb-2 flex items-center gap-2"><span className="grid size-6 place-items-center rounded-full bg-[#e8d8af] text-[10px] font-bold text-[#735415]">{index + 1}</span>{editingKey === speaker.speakerKey ? <Input value={nameDraft} autoFocus onChange={event => setNameDraft(event.target.value)} onKeyDown={event => event.key === "Enter" && saveSpeaker(speaker.speakerKey)} className="h-8 text-xs" /> : <p className="flex-1 text-sm font-semibold text-[#26344e]">{speaker.displayName || speaker.defaultName}</p>}<Button size="sm" variant="ghost" onClick={() => editingKey === speaker.speakerKey ? saveSpeaker(speaker.speakerKey) : (setEditingKey(speaker.speakerKey), setNameDraft(speaker.displayName || speaker.defaultName))} className="h-7 px-2 text-xs text-[#8b6c2c]">{editingKey === speaker.speakerKey ? "Save" : "Rename"}</Button></div>{speaker.suggestion ? <p className="rounded-lg bg-[#f4eddb] px-2.5 py-2 text-xs leading-5 text-[#756342]">Suggested role: {(speaker.suggestion as { suggestedRole?: string }).suggestedRole || "Review manually"}</p> : <p className="text-xs leading-5 text-[#9a8760]">Role suggestions appear after transcript analysis.</p>}</div>)}</div> : <div className="rounded-xl border border-dashed border-[#b49345]/30 px-4 py-8 text-center"><UsersRound className="mx-auto mb-3 size-5 text-[#b49345]" /><p className="text-xs leading-5 text-[#8c7957]">Speaker labels will appear here after diarization.</p></div>}</aside>
         </div>
       </div>
+      {activeJobId && job?.stage === "complete" && <div className="mx-auto mt-5 max-w-3xl"><TranscriptControls timestamps={showTimestamps} onTimestampsChange={setShowTimestamps} content={exportText} srtContent={srtExport} vttContent={vttExport} /></div>}
     </main>
   );
 }

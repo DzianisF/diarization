@@ -89,7 +89,8 @@ export async function inspectYouTubeBrowserDownload(sourceUrl: string): Promise<
   if (!Number.isFinite(durationSeconds) || durationSeconds <= 0 || durationSeconds > MAX_PLATFORM_DURATION_SECONDS) {
     throw new Error("This platform video must be between 1 second and 60 minutes for browser download.");
   }
-  return { title: typeof value.title === "string" ? value.title.slice(0, 255) : "Platform video", durationSeconds };
+  const estimatedBytes = Number(value.filesize_approx ?? value.filesize ?? 0) || undefined;
+  return { title: typeof value.title === "string" ? value.title.slice(0, 255) : "Platform video", durationSeconds, estimatedBytes };
 }
 
 export function spawnYouTubeBrowserDownload(sourceUrl: string) {

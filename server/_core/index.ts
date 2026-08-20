@@ -99,6 +99,7 @@ async function startServer() {
       res.setHeader("Content-Type", "application/octet-stream");
       res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
       res.setHeader("Cache-Control", "no-store");
+      if (metadata.estimatedBytes) res.setHeader("X-Diarize-Estimated-Bytes", String(metadata.estimatedBytes));
       const child = spawnYouTubeBrowserDownload(sourceUrl);
       let stderr = "";
       const timeout = setTimeout(() => child.kill("SIGKILL"), 165_000);

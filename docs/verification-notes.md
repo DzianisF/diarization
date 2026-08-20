@@ -19,3 +19,13 @@ The `Save a video` dock is visible in the lower-right corner of the desktop inta
 The same dock now includes **Choose a saved file for Diarize**. Selecting a local audio/video file dispatches it to the intake workspace, selects the Local file source mode, and lets the user continue through the ordinary upload and analysis flow. This handoff was covered by a component test. The local processing limit remains 16 MB; streaming a larger source to the device does not enlarge the transcription-service limit.
 
 The 2026-08-20 release gate passed 20 Vitest files with 44 tests, `pnpm check`, and `pnpm run build`. The Home-level UI integration test additionally verifies the event-driven handoff from a saved local file back to the populated Local file intake. Successful source delivery is not asserted here: YouTube anti-bot verification occurs before an accessible source stream exists, so output chunking cannot overcome that upstream restriction.
+
+## 2026-08-20 Export and local-preparation check
+
+The transcript formatter produces SRT cues with comma milliseconds and WebVTT cues with dot milliseconds; both preserve speaker labels and prevent a cue from ending before its start time. The completed-record controls expose TXT, SRT, and VTT downloads.
+
+The left-side **Prepare long video** entry point is visible without overlapping the central intake or the right-side **Save a video** action. On browsers exposing `captureStream` and `MediaRecorder`, it creates an audio-only copy locally and reports real-time local-playback progress. It refuses a result over the same 16 MB intake limit and gives an explicit fallback for unsupported browsers; it does not claim to circumvent the source-side YouTube anti-bot constraint.
+
+The final gate for this change passed 23 Vitest files with 50 tests, `pnpm check`, and `pnpm run build`. A stream test writes multiple received chunks through a mocked File System Access handle and verifies the reported byte counts. The jsdom test environment logs an expected warning when it simulates navigation from the native download anchor; production uses the browser download manager for that fallback path.
+
+At 375 px width, the two secondary actions are rendered in the document flow between the explanatory notice and the intake card. The action row is visible and the Local file selector remains unobscured; fixed versions are retained only at `sm` widths and above.

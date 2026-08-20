@@ -4,6 +4,7 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { PlatformDownloadDock } from "./components/diarize/PlatformDownloadDock";
+import { LocalMediaPreparationDock } from "./components/diarize/LocalMediaPreparationDock";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 
@@ -34,7 +35,8 @@ function App() {
         <TooltipProvider>
           <Toaster />
           <Router />
-          <PlatformDownloadDock />
+          <div className="hidden sm:block"><LocalMediaPreparationDock /></div>
+          <div className="hidden sm:block"><PlatformDownloadDock /></div>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
