@@ -92,4 +92,4 @@
 - [x] Исправить origin/localhost-протокол и проверить реальное подключение браузера к companion.
 - [x] Опубликовать исправление подключения и синхронизировать его с GitHub-репозиторием DzianisF/diarization.
 - [x] Разрешить прямой localhost health-check companion без Origin, сохранив origin и handshake для рабочих маршрутов.
-- [ ] Протестировать, опубликовать и синхронизировать исправление health-check companion.
+- [x] Протестировать, опубликовать и синхронизировать исправление health-check companion.
