@@ -1,0 +1,1 @@
+ALTER TABLE `transcriptionJobs` MODIFY COLUMN `jobStage` enum('uploading','preparing_source','extracting_audio','transcribing','diarizing','complete','failed') NOT NULL DEFAULT 'uploading';
