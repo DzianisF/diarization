@@ -12,6 +12,7 @@ type CompanionJob = { id: string; stage: string; progress: number; error: string
 
 function companionConnectionMessage(problem: unknown) {
   const message = problem instanceof Error ? problem.message : "";
+  if (window.location.hostname.endsWith(".manus.computer")) return "The local companion cannot be reached from Manus Preview. Open the published Diarize site in a browser on the same computer where companion is running, then try again.";
   if (/failed to fetch|networkerror|load failed/i.test(message)) return "Cannot reach the local companion. Start it in the repository’s companion folder with npm start, keep that terminal open, then allow local-network access if your browser asks.";
   return message || "Unable to connect to the local companion. Start it and try again.";
 }
@@ -73,7 +74,7 @@ export function LocalCompanionDock({ embedded = false }: { embedded?: boolean })
     {open ? <section aria-label="Use local companion" className="w-[min(92vw,440px)] rounded-2xl border border-[#b49345]/30 bg-[#fffaf0] p-4 shadow-[0_18px_44px_rgba(45,38,18,.18)]">
       <div className="mb-3 flex items-start justify-between gap-3"><div><p className="section-kicker">On this device</p><h2 className="font-display text-lg text-[#17243c]">Use local companion</h2></div><Button type="button" aria-label="Close local companion panel" variant="ghost" size="icon" onClick={() => setOpen(false)} className="text-[#806a3e]"><X /></Button></div>
       <p className="text-xs leading-5 text-[#766241]">The companion uses your device’s network, downloads permitted public media locally, extracts compact audio, then selects it in Diarize. Keep the companion terminal running.</p>
-      <div role="note" className="mt-3 rounded-lg border border-[#b49345]/25 bg-[#f8efd9] px-3 py-2 text-[11px] leading-4 text-[#66583f]"><strong>Start it first:</strong> in the repository folder, open a terminal and run <code className="rounded bg-white px-1 py-0.5">cd companion && npm start</code>. Keep that terminal open. If the browser asks to access the local network, choose Allow.</div>
+      <div role="note" className="mt-3 rounded-lg border border-[#b49345]/25 bg-[#f8efd9] px-3 py-2 text-[11px] leading-4 text-[#66583f]"><strong>Start it first:</strong> in the repository folder, open a terminal and run <code className="rounded bg-white px-1 py-0.5">cd companion && npm start</code>. Keep that terminal open. Open the published Diarize site in a browser on this same computer—not Manus Preview—and allow local-network access if the browser asks.</div>
       <Label htmlFor="companion-source-url" className="mt-3 block text-xs text-[#675633]">Public YouTube URL</Label>
       <Input id="companion-source-url" value={sourceUrl} onChange={event => setSourceUrl(event.target.value)} placeholder="https://www.youtube.com/watch?v=..." className="mt-1.5 h-10 border-[#b49345]/35 bg-white" />
       <label className="mt-3 flex cursor-pointer items-start gap-2.5 text-xs leading-5 text-[#66583f]"><Checkbox checked={rightsConfirmed} onCheckedChange={value => setRightsConfirmed(value === true)} /><span>I confirm I have the right to process this media locally.</span></label>
